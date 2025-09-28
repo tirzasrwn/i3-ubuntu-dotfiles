@@ -9,6 +9,8 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 
+sudo usermod -aG video $USER
+
 echo "$content" | tee "$file_path" >/dev/null
 
 echo "Content successfully written to $file_path"

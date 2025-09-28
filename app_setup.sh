@@ -11,6 +11,7 @@ sudo apt install -y \
 	brightnessctl \
 	blueman \
 	cowsay \
+	curl \
 	dunst \
 	feh \
 	ffmpeg \
