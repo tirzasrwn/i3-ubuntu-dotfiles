@@ -13,6 +13,7 @@ sudo apt install -y \
 	cowsay \
 	curl \
 	dunst \
+	eza \
 	feh \
 	ffmpeg \
 	fortune \
