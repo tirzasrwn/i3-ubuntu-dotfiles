@@ -53,8 +53,8 @@ HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 # Set aliases.
 alias psx="ps xf | less -S"
 
-if command -v exa >/dev/null 2>&1; then
-  alias ll="exa -l -g --icons"
+if command -v eza >/dev/null 2>&1; then
+  alias ll="eza -l -g --icons"
   alias la="ll -a"
   alias lt="ll --tree --level=2"
   alias lls="ll | less -S"
