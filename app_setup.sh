@@ -20,6 +20,7 @@ sudo apt install -y \
 	flameshot \
 	fzf \
 	git \
+	gromit-mpx \
 	i3lock \
 	i3-wm \
 	libdbus-1-dev \
