@@ -12,7 +12,7 @@ fi
 LIST="$HOME/.local/bin/tmux-cht-list"
 
 # Select a language using fzf
-selected=$(cat "$LIST" | fzf --print-query --prompt="ch.sh/" | tail -1)
+selected=$(cat "$LIST" | fzf --print-query --prompt="cht.sh/" | tail -1)
 if [[ -z $selected ]]; then
 	exit 0
 fi
@@ -21,4 +21,4 @@ fi
 query=$(echo "$query" | tr ' ' '+')
 
 # Open a new tmux window and execute the command
-tmux neww bash -c "bash $SCRIPT_PATH $selected | less -SR"
+tmux neww bash -c "bash $SCRIPT_PATH $selected | sed 's/\x1b\[[0-9;]*m//g' | less -S"

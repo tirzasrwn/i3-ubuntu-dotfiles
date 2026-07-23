@@ -272,8 +272,8 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
 # Monitor brightness control
-bindsym XF86MonBrightnessUp exec brightnessctl s +13 && sleep .2 && brightnessctl
-bindsym XF86MonBrightnessDown exec brightnessctl s 13- && sleep .2 && brightnessctl
+bindsym XF86MonBrightnessUp exec brightnessctl s +1300 && sleep .2 && brightnessctl
+bindsym XF86MonBrightnessDown exec brightnessctl s 1300- && sleep .2 && brightnessctl
 
 # Lauch picom for x11 compositor
 exec --no-startup-id picom -b
@@ -296,6 +296,12 @@ bindsym $cmd+o exec $HOME/.local/bin/toggle-display-gamma >/dev/null 2>&1 &
 # Toggle screen record
 bindsym $cmd+Shift+r exec $HOME/.local/bin/toggle-screen-record >/dev/null 2>&1 &
 
+# Generate uuid and copy to clipboard
+bindsym $cmd+u exec uuid | xclip -selection clipboard >/dev/null 2>&1 &
+
+# Zoom without leaving the mouse with boomer
+bindsym $cmd+shift+equal exec $HOME/.local/bin/boomer >/dev/null 2>&1 &
+
 # Enable Sticky floating windows for picture in picture browser
 for_window [title="Picture-in-Picture"] sticky enable
 for_window [title=" "] sticky enable
@@ -305,3 +311,4 @@ exec $HOME/.local/bin/battery-notification
 
 exec --no-startup-id nm-applet
 exec --no-startup-id blueman-applet
+exec --no-startup-id $HOME/.local/bin/fix-touchpad
