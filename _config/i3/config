@@ -300,7 +300,7 @@ bindsym $cmd+Shift+r exec $HOME/.local/bin/toggle-screen-record >/dev/null 2>&1 
 bindsym $cmd+u exec uuid | xclip -selection clipboard >/dev/null 2>&1 &
 
 # Zoom without leaving the mouse with boomer
-bindsym $cmd+shift+equal exec $HOME/.local/bin/boomer >/dev/null 2>&1 &
+bindsym $cmd+shift+q exec $HOME/.local/bin/boomer >/dev/null 2>&1 &
 
 # Enable Sticky floating windows for picture in picture browser
 for_window [title="Picture-in-Picture"] sticky enable
