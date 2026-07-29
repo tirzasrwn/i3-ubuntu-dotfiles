@@ -14,3 +14,5 @@ wget -O $TAR $URL
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf $TAR
 export PATH=$PATH:/usr/local/go/bin
 go version
+
+go install github.com/jesseduffield/lazydocker@latest

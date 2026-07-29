@@ -23,6 +23,7 @@ sudo apt install -y \
 	gromit-mpx \
 	i3lock \
 	i3-wm \
+	lazygit \
 	libdbus-1-dev \
 	libnotify-bin \
 	mate-polkit \
