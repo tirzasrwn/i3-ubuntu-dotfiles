@@ -1,3 +1,4 @@
+@import "colors.rasi"
 /*Credit from Dracula theme based on the Purple official rofi theme modify as needed*/
 
 configuration {
@@ -13,11 +14,6 @@ configuration {
 
 * {
     font: "FiraCode Nerd Font 10";
-    foreground: #cad3f5;
-    background-color: #24273a;
-    active-background: #494d64;
-    urgent-background: #ed8796;
-    urgent-foreground: #cad3f5;
     selected-background: @active-background;
     selected-urgent-background: @urgent-background;
     selected-active-background: @active-background;

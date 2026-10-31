@@ -34,7 +34,7 @@ style = "Regular"
 live_config_reload = true
 # https://alacritty.org/config-alacritty.html
 
-import = ["/home/tirzasrwn/.config/alacritty/catppuccin-macchiato.toml"]
+import = ["~/.config/alacritty/colors.toml"]
 
 [terminal]
 

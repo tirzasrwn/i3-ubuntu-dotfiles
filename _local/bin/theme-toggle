@@ -57,6 +57,10 @@ while IFS=: read -r fragment target; do
 done <<EOF
 i3.conf:$CONFIG/i3/colors.conf
 polybar.ini:$CONFIG/polybar/colors.ini
+rofi.rasi:$CONFIG/rofi/colors.rasi
+tmux.conf:$CONFIG/tmux/colors.conf
+alacritty.toml:$CONFIG/alacritty/colors.toml
+zathura:$CONFIG/zathura/colors
 EOF
 
 if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
@@ -65,6 +69,14 @@ fi
 
 if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
 	polybar-msg cmd restart >/dev/null || true
+fi
+
+if command -v tmux >/dev/null 2>&1 && tmux ls >/dev/null 2>&1; then
+	tmux source-file "$CONFIG/tmux/tmux.conf" >/dev/null || true
+fi
+
+if [[ -f $CONFIG/alacritty/alacritty.toml ]]; then
+	touch "$CONFIG/alacritty/alacritty.toml"
 fi
 
 printf '%s\n' "$flavour" >"$THEME_FILE"

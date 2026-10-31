@@ -1,0 +1,7 @@
+* {
+    foreground: #4c4f69;
+    background-color: #eff1f5;
+    active-background: #bcc0cc;
+    urgent-background: #d20f39;
+    urgent-foreground: #4c4f69;
+}
