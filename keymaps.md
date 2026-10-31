@@ -149,6 +149,14 @@ Prefix: `Ctrl+b` (press twice to send literal `Ctrl+b`)
 | `Ctrl+b K`  | Sessionizer on `~/Downloads`                                |
 | `Ctrl+b L`  | Sessionizer on `~/Pictures`                                 |
 
+### Popups
+
+| Key         | Action                                          |
+| ----------- | ----------------------------------------------- |
+| `Ctrl+b g`  | lazygit popup (current pane directory)          |
+| `Ctrl+b a`  | opencode popup (current pane directory)         |
+| `Ctrl+b e`  | lazydocker popup (current pane directory)       |
+
 ---
 
 ## zsh (`.zshrc`)
