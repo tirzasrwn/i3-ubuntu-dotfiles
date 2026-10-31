@@ -116,7 +116,7 @@ keybindings will not work until these are fixed.
   launched via `exec_always` from i3 config.
 - Polybar: a single bar `main` at 24pt on each monitor. Modules right chain:
   `xbacklight filesystem pulseaudio xkeyboard memory cpu wlan battery caffeine
-  tray date suspend poweroff`. Click the coffee icon to toggle screen sleep
+  theme tray date suspend poweroff`. Click the coffee icon to toggle screen sleep
   (caffeine); green means the screen stays awake.
 - Alacritty: zsh shell, FiraCode Nerd Font, palette imported from
   `~/.config/alacritty/colors.toml`,

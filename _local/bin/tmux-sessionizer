@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# tmux inherits the environment of the server, not of the shell that toggled
+# the theme, so read the palette fresh instead of trusting FZF_DEFAULT_OPTS.
+if [[ -r $HOME/.config/zsh/colors.zsh ]]; then
+	. "$HOME/.config/zsh/colors.zsh"
+fi
+
 if [[ $# -eq 1 ]]; then
 	selected=$1
 else
