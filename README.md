@@ -111,14 +111,15 @@ keybindings will not work until these are fixed.
 
 ## Configuration Overview
 
-- i3: Catppuccin color variables, `$mod = Alt`, `$cmd = Super`, 5px borders,
+- i3: Catppuccin palette included from `~/.config/i3/colors.conf`, `$mod = Alt`, `$cmd = Super`, 5px borders,
   5px inner gaps, `smart_gaps inverse_outer`, `smart_borders on`. Polybar is
   launched via `exec_always` from i3 config.
 - Polybar: a single bar `main` at 24pt on each monitor. Modules right chain:
   `xbacklight filesystem pulseaudio xkeyboard memory cpu wlan battery caffeine
   tray date suspend poweroff`. Click the coffee icon to toggle screen sleep
   (caffeine); green means the screen stays awake.
-- Alacritty: zsh shell, FiraCode Nerd Font, Catppuccin Macchiato import,
+- Alacritty: zsh shell, FiraCode Nerd Font, palette imported from
+  `~/.config/alacritty/colors.toml`,
   `live_config_reload = true`.
 - tmux: prefix `C-b`, mouse on, vi copy-mode with `v`/`y` piping to xclip,
   vim-style pane navigation, custom helpers (`f`, `o`, `H`/`J`/`K`/`L`).
@@ -131,7 +132,7 @@ Helper scripts under `_local/bin` (installed to `~/.local/bin`):
 - `tmux-sessionizer`, `tmux-windowizer`, `tmux-cht.sh`, `tmux-cht-list`
 - `open-directory`, `open-file`, `open-note`
 - `toggle-app`, `toggle-display-mode`, `toggle-display-gamma`,
-  `toggle-screen-record`, `toggle-caffeine`
+  `toggle-screen-record`, `toggle-caffeine`, `theme-toggle`
 - `fix-touchpad`, `battery-notification`, `bell`
 - `screendir`, `clean-docker-none-tag`, `clean-go-npm-cargo-cache`,
   `clean-snapd-disable-app`
@@ -139,6 +140,25 @@ Helper scripts under `_local/bin` (installed to `~/.local/bin`):
 For the full keybinding lists, see `keymaps.md`. The per-component readmes live
 in `_config/i3/readme.md`, `_config/polybar/readme.md`, and
 `_config/tmux/readme.md`.
+
+## Light and Dark Themes
+
+One toggle switches every themed app between Catppuccin Latte (light) and
+Macchiato (dark): i3, polybar, rofi, tmux, alacritty, zathura, dunst,
+screenkey, fzf, GTK 3/4, Neovim, and opencode.
+
+- Keybind: `Super+Shift+t`. CLI: `theme-toggle`, `theme-toggle --set latte`,
+  `theme-toggle --status`.
+- State: `~/.config/theme` (one line, `latte` or `macchiato`).
+- Palette fragments: `_config/themes/<flavour>/`, deployed to
+  `~/.config/themes/<flavour>/`. Each app reads a fixed path that is a symlink
+  into the active flavour, so no hex values live in the app configs.
+- `dunst` and `screenkey` have no include mechanism, so their whole file is the
+  fragment. Edit them in `_config/themes/`, never in `~/.config`.
+- GTK themes come from `gtk_theme_setup.sh` (Catppuccin GTK v1.0.3, mauve
+  accent) and fall back to `Yaru`/`Yaru-dark` when missing.
+- Wallpaper and the lock screen colour do not change with the theme.
+- Running opencode, rofi, and zathura pick up the new palette on next launch.
 
 ## Reload and Validation
 

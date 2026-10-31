@@ -18,6 +18,9 @@ Never run as root. Do not add a second copy mechanism.
 
 - `_config/i3/config` — window manager, keybinds, autostart
 - `_config/polybar/` — bar; `config.ini` includes `modules/*.ini`
+- `_config/themes/<flavour>/` — one palette fragment per app per flavour;
+  app configs must include them, never hardcode hex. `theme-toggle` swaps the
+  symlinks and reloads.
 - `_local/bin/` — shell helpers on `PATH` via `.profile`
 - `app_setup.sh` — apt package list + deploy
 - `*_setup.sh` — independent tool installers (rust, go, node, neovim, fonts,
