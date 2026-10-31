@@ -56,10 +56,15 @@ while IFS=: read -r fragment target; do
 	ln -sfn "$source_file" "$target"
 done <<EOF
 i3.conf:$CONFIG/i3/colors.conf
+polybar.ini:$CONFIG/polybar/colors.ini
 EOF
 
 if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
 	i3-msg reload >/dev/null
+fi
+
+if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
+	polybar-msg cmd restart >/dev/null || true
 fi
 
 printf '%s\n' "$flavour" >"$THEME_FILE"
