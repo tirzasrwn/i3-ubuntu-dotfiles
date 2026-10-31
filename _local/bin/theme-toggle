@@ -112,6 +112,18 @@ fi
 # cannot leave the state file pointing at the flavour that is not applied.
 printf '%s\n' "$flavour" >"$THEME_FILE"
 
+# A running Neovim keeps the config it started with, so push the switch over
+# its RPC socket instead of waiting for a restart.
+nvim_bg=dark
+[[ $flavour == latte ]] && nvim_bg=light
+if command -v nvim >/dev/null 2>&1; then
+	for sock in "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*; do
+		[[ -S $sock ]] || continue
+		nvim --server "$sock" --remote-expr \
+			"execute('lua vim.o.background=\"$nvim_bg\"')" >/dev/null 2>&1 || true
+	done
+fi
+
 # From here on everything is best effort: the files are already consistent.
 if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
 	oc_theme=catppuccin-macchiato

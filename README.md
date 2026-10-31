@@ -158,6 +158,8 @@ screenkey, fzf, GTK 3/4, Neovim, and opencode.
 - GTK themes come from `gtk_theme_setup.sh` (Catppuccin GTK v1.0.3, mauve
   accent) and fall back to `Yaru`/`Yaru-dark` when missing.
 - Wallpaper and the lock screen colour do not change with the theme.
+- Running Neovim instances switch immediately: the toggle pushes the new
+  `background` over their RPC socket.
 - Running opencode, rofi, and zathura pick up the new palette on next launch.
 
 ## Reload and Validation
