@@ -67,6 +67,21 @@ gtk.ini:$CONFIG/gtk-3.0/settings.ini
 gtk.ini:$CONFIG/gtk-4.0/settings.ini
 EOF
 
+# polybar does not expand ${colors.x} inside %{F...} tags, so the few inline
+# icon colours are swapped in the deployed module files instead.
+if [[ -d $CONFIG/polybar/modules ]]; then
+	for pair in "#a6da95 #40a02b" "#ed8796 #d20f39" "#91d7e3 #04a5e5" "#cad3f5 #4c4f69" "#c6a0f6 #8839ef"; do
+		read -r macchiato_hex latte_hex <<<"$pair"
+		for module in "$CONFIG"/polybar/modules/*.ini; do
+			if [[ $flavour == latte ]]; then
+				sed -i "s/$macchiato_hex/$latte_hex/gI" "$module"
+			else
+				sed -i "s/$latte_hex/$macchiato_hex/gI" "$module"
+			fi
+		done
+	done
+fi
+
 # i3 does not expand variables defined in an included file, so the palette
 # block is rewritten in place between its markers.
 i3_fragment=$THEMES_DIR/$flavour/i3.conf
