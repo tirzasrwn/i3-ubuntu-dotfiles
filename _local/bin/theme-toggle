@@ -68,6 +68,23 @@ gtk.ini:$CONFIG/gtk-3.0/settings.ini
 gtk.ini:$CONFIG/gtk-4.0/settings.ini
 EOF
 
+if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
+	oc_theme=catppuccin-macchiato
+	oc_mode=dark
+	if [[ $flavour == latte ]]; then
+		oc_theme=catppuccin-latte
+		oc_mode=light
+	fi
+	if [[ -f $CONFIG/opencode/tui.json ]]; then
+		tmp=$(mktemp)
+		jq --arg t "$oc_theme" '.theme = $t' "$CONFIG/opencode/tui.json" >"$tmp" && mv "$tmp" "$CONFIG/opencode/tui.json"
+	fi
+	if [[ -f $CONFIG/opencode/cli.json ]]; then
+		tmp=$(mktemp)
+		jq --arg n "$oc_theme" --arg m "$oc_mode" '.theme.name = $n | .theme.mode = $m' "$CONFIG/opencode/cli.json" >"$tmp" && mv "$tmp" "$CONFIG/opencode/cli.json"
+	fi
+fi
+
 if command -v gsettings >/dev/null 2>&1; then
 	theme_name=$(sed -n 's/^gtk-theme-name=//p' "$THEMES_DIR/$flavour/gtk.ini" 2>/dev/null || true)
 	if [[ -n $theme_name && ! -d ${XDG_DATA_HOME:-$HOME/.local/share}/themes/$theme_name ]]; then
