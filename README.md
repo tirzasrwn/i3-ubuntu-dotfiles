@@ -113,8 +113,9 @@ keybindings will not work until these are fixed.
   5px inner gaps, `smart_gaps inverse_outer`, `smart_borders on`. Polybar is
   launched via `exec_always` from i3 config.
 - Polybar: a single bar `main` at 24pt on each monitor. Modules right chain:
-  `xbacklight filesystem pulseaudio xkeyboard memory cpu wlan battery tray date
-  suspend poweroff`.
+  `xbacklight filesystem pulseaudio xkeyboard memory cpu wlan battery caffeine
+  tray date suspend poweroff`. Click the coffee icon to toggle screen sleep
+  (caffeine); green means the screen stays awake.
 - Alacritty: zsh shell, FiraCode Nerd Font, Catppuccin Macchiato import,
   `live_config_reload = true`.
 - tmux: prefix `C-b`, mouse on, vi copy-mode with `v`/`y` piping to xclip,
@@ -128,7 +129,7 @@ Helper scripts under `_local/bin` (installed to `~/.local/bin`):
 - `tmux-sessionizer`, `tmux-windowizer`, `tmux-cht.sh`, `tmux-cht-list`
 - `open-directory`, `open-file`, `open-note`
 - `toggle-app`, `toggle-display-mode`, `toggle-display-gamma`,
-  `toggle-screen-record`
+  `toggle-screen-record`, `toggle-caffeine`
 - `fix-touchpad`, `battery-notification`, `bell`
 - `screendir`, `clean-docker-none-tag`, `clean-go-npm-cargo-cache`,
   `clean-snapd-disable-app`

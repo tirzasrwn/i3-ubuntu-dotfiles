@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -euo pipefail
+
+STATE="${XDG_RUNTIME_DIR:-/tmp}/caffeine-${USER}"
+
+if [[ "${1:-}" == "--status" ]]; then
+	if [[ -f "$STATE" ]]; then
+		printf '%%{F#a6da95}\uf0f4%%{F-}\n'
+	else
+		printf '%%{F#6e738d}\uf0f4%%{F-}\n'
+	fi
+	exit 0
+fi
+
+if [[ -f "$STATE" ]]; then
+	xset s on +dpms
+	rm -f "$STATE"
+else
+	xset s off -dpms
+	: >"$STATE"
+fi
