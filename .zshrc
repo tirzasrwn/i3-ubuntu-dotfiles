@@ -95,11 +95,7 @@ if command -v tmux-windowizer >/dev/null 2>&1; then
   alias tw="tmux-windowizer"
 fi
 
-# fzf catppuccin theme.
-export FZF_DEFAULT_OPTS=" \
---color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
---color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
---color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
+[[ -r ~/.config/zsh/colors.zsh ]] && source ~/.config/zsh/colors.zsh
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if command -v fortune >/dev/null 2>&1 && command -v cowsay >/dev/null 2>&1; then
