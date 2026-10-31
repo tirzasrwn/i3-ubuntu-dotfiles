@@ -1,19 +1,24 @@
 #!/bin/bash
 
-set -x
-set -eo pipefail
+set -euo pipefail
 
-TOUCHPAD="SynPS/2 Synaptics TouchPad"
+TOUCHPAD=$(xinput list --name-only 2>/dev/null | grep -i touchpad | head -n1 || true)
+if [[ -z "$TOUCHPAD" ]]; then
+	echo "No touchpad found." >&2
+	exit 1
+fi
 
-xinput
-xinput list-props "$TOUCHPAD"
-xinput disable "$TOUCHPAD"
-xinput enable "$TOUCHPAD"
+xinput disable "$TOUCHPAD" 2>/dev/null || true
+xinput enable "$TOUCHPAD" 2>/dev/null || true
 
-xinput set-prop "$TOUCHPAD" "libinput Tapping Enabled" 1
-xinput set-prop "$TOUCHPAD" "libinput Tapping Drag Enabled" 1
-xinput set-prop "$TOUCHPAD" "libinput Tapping Drag Lock Enabled" 1
-xinput set-prop "$TOUCHPAD" "libinput Accel Speed" 0.4
-xinput set-prop "$TOUCHPAD" "libinput Scrolling Pixel Distance" 10
-xinput set-prop "$TOUCHPAD" "libinput Natural Scrolling Enabled" 0
-xinput set-prop "$TOUCHPAD" "libinput Middle Emulation Enabled" 1
+set_prop() {
+	xinput set-prop "$TOUCHPAD" "$1" "$2" 2>/dev/null || true
+}
+
+set_prop "libinput Tapping Enabled" 1
+set_prop "libinput Tapping Drag Enabled" 1
+set_prop "libinput Tapping Drag Lock Enabled" 1
+set_prop "libinput Accel Speed" 0.4
+set_prop "libinput Scrolling Pixel Distance" 10
+set_prop "libinput Natural Scrolling Enabled" 0
+set_prop "libinput Middle Emulation Enabled" 1

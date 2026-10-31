@@ -1,6 +1,12 @@
 #!/bin/bash
 
+set -euo pipefail
+
 date=$(date '+%d-%m-%Y')
-directory=$HOME/Pictures/$date
-mkdir -p $directory
-ls -lah $HOME/Pictures/ | grep $date
+directory="$HOME/Pictures/$date"
+mkdir -p "$directory"
+
+for entry in "$HOME/Pictures/$date"*; do
+	[[ -e "$entry" ]] || continue
+	ls -ldh "$entry"
+done

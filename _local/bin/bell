@@ -1,47 +1,51 @@
 #!/bin/bash
 
-# Check if a number is provided as an argument
-if [ -z "$1" ]; then
-	NUM_TIMES=0 # 0 will indicate an infinite loop
+set -uo pipefail
+
+NUM_TIMES="${1:-0}"
+[[ "$NUM_TIMES" =~ ^[0-9]+$ ]] || NUM_TIMES=0
+
+if [[ "$NUM_TIMES" -eq 0 ]]; then
+	printf "bell is ringing indefinitely...\n"
 else
-	NUM_TIMES=$1
+	printf "bell is ringing %s times...\n" "$NUM_TIMES"
 fi
 
-printf "bell is ringing"
-
-if [ $NUM_TIMES -eq 0 ]; then
-	printf " indefinitely...\n"
-else
-	printf " $NUM_TIMES times...\n"
+SOUND="$HOME/bell.mp3"
+if [[ ! -f "$SOUND" ]]; then
+	SOUND="/usr/share/sounds/freedesktop/stereo/bell.oga"
 fi
 
-CURRENT_VOLUME=$(amixer -c 1 get Master | grep -oP "\[\d+%\]" | head -n 1 | tr -d "[]")
+amixer_args=()
+if amixer -c 1 get Master >/dev/null 2>&1; then
+	amixer_args=(-c 1)
+fi
 
-function ctrl_c() {
-	printf "\nStopping the bell ...\n"
-	amixer -c 1 set Master $CURRENT_VOLUME >/dev/null 2>&1 &
-	exit 0
+CURRENT_VOLUME=$(amixer "${amixer_args[@]}" get Master 2>/dev/null | grep -oP '\[\d+%\]' | head -n1 | tr -d '[]' || true)
+
+restore_volume() {
+	if [[ -n "$CURRENT_VOLUME" ]]; then
+		amixer "${amixer_args[@]}" set Master "$CURRENT_VOLUME" >/dev/null 2>&1 || true
+	fi
 }
 
-trap ctrl_c INT
+trap 'printf "\nStopping the bell ...\n"; restore_volume; exit 0' INT TERM
 
-amixer -c 1 set Master 80% >/dev/null 2>&1 &
+amixer "${amixer_args[@]}" set Master 80% >/dev/null 2>&1 || true
 
-if [ $NUM_TIMES -eq 0 ]; then
-	# Loop indefinitely
+if [[ ! -f "$SOUND" ]]; then
+	printf '\a'
+elif [[ "$NUM_TIMES" -eq 0 ]]; then
 	while true; do
-		mpv --no-terminal ~/bell.mp3
+		mpv --no-terminal "$SOUND" >/dev/null 2>&1 || true
 		sleep 1
 	done
 else
-	# Loop for the specified number of times
 	for ((i = 1; i <= NUM_TIMES; i++)); do
-		mpv --no-terminal ~/bell.mp3
+		mpv --no-terminal "$SOUND" >/dev/null 2>&1 || true
 		sleep 1
 	done
 fi
 
-# Restore the original volume after finishing
-amixer -c 1 set Master $CURRENT_VOLUME >/dev/null 2>&1 &
-
+restore_volume
 exit 0

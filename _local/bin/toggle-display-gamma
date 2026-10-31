@@ -19,13 +19,13 @@ if [ -z "$connected_displays" ]; then
 fi
 
 current_gamma=$(xrandr --verbose | grep Gamma)
-echo $current_gamma
+echo "$current_gamma"
 
 # Iterate through connected displays and toggle gamma and brightness
 for display in $connected_displays; do
 	if [[ $current_gamma == *"1.0:1.0:1.0"* ]]; then
 		# If gamma is 1 1 1, toggle to custom gamma and brightness
-		xrandr --output "$display" --gamma $custom_gamma --brightness $custom_brightness
+		xrandr --output "$display" --gamma "$custom_gamma" --brightness "$custom_brightness"
 		echo "Gamma and brightness toggled to $custom_gamma and $custom_brightness for $display"
 	else
 		# If gamma is not 1 1 1, toggle back to 1 1 1 and default brightness

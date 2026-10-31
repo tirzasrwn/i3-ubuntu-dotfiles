@@ -1,54 +1,52 @@
 #!/bin/bash
 
-MODE_FILE="/tmp/display_mode"
+MODE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display_mode"
 
 PRIMARY="eDP"
 EXTERNAL="DisplayPort-1"
 
-external_connected=$(xrandr --query | grep "$EXTERNAL" | wc -l)
-
 current_mode=$(cat "$MODE_FILE" 2>/dev/null) || current_mode="PRIMARY"
 
-if [ "$external_connected" -eq 1 ]; then
+if xrandr --query | grep -q "^${EXTERNAL} connected"; then
 	case "$current_mode" in
 	"PRIMARY")
 		# Switch to EXTERNAL only
-		xrandr --output $PRIMARY --off --output $EXTERNAL --auto --primary
+		xrandr --output "$PRIMARY" --off --output "$EXTERNAL" --auto --primary
 		echo "EXTERNAL" >"$MODE_FILE"
 		sleep 3
-		notify-send "Display Mode" "EXTERNAL only" -t 3000
-		~/.config/polybar/launch.sh >/dev/null 2>&1 &
+		notify-send "Display Mode" "EXTERNAL only" -t 3000 || true
+		"$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 &
 		;;
 	"EXTERNAL")
 		# Switch to duplicated mode
-		xrandr --output $PRIMARY --auto --output $EXTERNAL --auto --same-as $PRIMARY --primary
+		xrandr --output "$PRIMARY" --auto --output "$EXTERNAL" --auto --same-as "$PRIMARY" --primary
 		echo "DUPLICATE" >"$MODE_FILE"
 		sleep 3
-		notify-send "Display Mode" "DUPLICATE" -t 3000
-		~/.config/polybar/launch.sh >/dev/null 2>&1 &
+		notify-send "Display Mode" "DUPLICATE" -t 3000 || true
+		"$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 &
 		;;
 	"DUPLICATE")
 		# Switch to extended mode
-		xrandr --output $PRIMARY --auto --output $EXTERNAL --auto --right-of $PRIMARY --primary
+		xrandr --output "$PRIMARY" --auto --output "$EXTERNAL" --auto --right-of "$PRIMARY" --primary
 		echo "EXTEND" >"$MODE_FILE"
 		sleep 3
-		notify-send "Display Mode" "EXTEND" -t 3000
-		~/.config/polybar/launch.sh >/dev/null 2>&1 &
+		notify-send "Display Mode" "EXTEND" -t 3000 || true
+		"$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 &
 		;;
 	*)
 		# Default to PRIMARY only
-		xrandr --output $EXTERNAL --off --output $PRIMARY --auto --primary
+		xrandr --output "$EXTERNAL" --off --output "$PRIMARY" --auto --primary
 		echo "PRIMARY" >"$MODE_FILE"
 		sleep 3
-		notify-send "Display Mode" "PRIMARY only" -t 3000
-		~/.config/polybar/launch.sh >/dev/null 2>&1 &
+		notify-send "Display Mode" "PRIMARY only" -t 3000 || true
+		"$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 &
 		;;
 	esac
 else
 	# EXTERNAL is not connected, switch to eDP only
-	xrandr --output $EXTERNAL --off --output $PRIMARY --auto --primary
+	xrandr --output "$EXTERNAL" --off --output "$PRIMARY" --auto --primary
 	echo "PRIMARY" >"$MODE_FILE"
 	sleep 3
-	notify-send "Display Mode" "PRIMARY only" -t 3000
-	~/.config/polybar/launch.sh >/dev/null 2>&1 &
+	notify-send "Display Mode" "PRIMARY only" -t 3000 || true
+	"$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 &
 fi

@@ -1,8 +1,29 @@
 #!/bin/bash
 
-selected_directory=$(eval find $(grep -v '^#' $HOME/.directory_list) -maxdepth 1 -mindepth 0 -type d | rofi -i -dmenu -p 'directory')
+set -euo pipefail
 
-if [ -n "$selected_directory" ]; then
+list="$HOME/.directory_list"
+[[ -f "$list" ]] || {
+	echo "Missing $list" >&2
+	exit 1
+}
+
+directories=()
+while IFS= read -r dir; do
+	if [[ -z "$dir" || "$dir" == \#* ]]; then
+		continue
+	fi
+	directories+=("${dir/#\~/$HOME}")
+done <"$list"
+
+if (( ${#directories[@]} == 0 )); then
+	echo "No directories configured in $list." >&2
+	exit 1
+fi
+
+selected_directory=$(find "${directories[@]}" -maxdepth 1 -type d 2>/dev/null | rofi -i -dmenu -p 'directory') || selected_directory=""
+
+if [[ -n "$selected_directory" ]]; then
 	nautilus "$selected_directory" >/dev/null 2>&1 &
 else
 	echo "Canceled."

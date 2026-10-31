@@ -1,28 +1,53 @@
 #!/bin/bash
 
-output_directory="/tmp"
+set -euo pipefail
+
+output_directory="$HOME/Videos"
+mkdir -p "$output_directory"
+
+state_file="${XDG_RUNTIME_DIR:-/tmp}/screen-record.state"
 output_file="$output_directory/$(date '+%Y%m%dT%H%M%S').mp4"
 
-# Get the current display from the DISPLAY environment variable
-current_display="$DISPLAY"
-
-# Define the audio input source (change this to match your system)
-# pactl list sources short
-# Use "default" for the default PulseAudio source or specify a specific monitor source
-audio_input="alsa_output.pci-0000_04_00.6.analog-stereo.monitor"
-
-if pgrep -x "ffmpeg" >/dev/null; then
-	sleep 1
-	# If ffmpeg is running, stop the recording
-	pkill -x ffmpeg >/dev/null 2>&1 &
-	latest_file=$(ls -t "$output_directory" | grep '.mp4$' | head -n1)
-	dunstify -a "Screen Recorder" -u normal "Recording stopped. Output saved to: $output_directory/$latest_file"
-	sleep 1
-	mpv "$output_directory/$latest_file" >/dev/null 2>&1 &
-else
-	# If ffmpeg is not running, start the recording
-	# ffmpeg -video_size 1920x1050 -framerate 30 -f x11grab -i "$primary_monitor"+0,30 -vf "scale=1280:700" -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p "$output_file" >/dev/null 2>&1 &
-	# Change to this command if you need audio system
-	ffmpeg -video_size 1920x1050 -framerate 20 -f x11grab -i "$primary_monitor"+0,30 -f pulse -i "$audio_input" -vf "scale=1280:700" -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -c:a aac -b:a 128k "$output_file" >/dev/null 2>&1 &
-	dunstify -a "Screen Recorder" -u normal "Recording started on display $current_display. Output file: $output_file"
+if [[ -s "$state_file" ]]; then
+	read -r pid saved_file <"$state_file" || true
+	if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
+		kill "$pid" 2>/dev/null || true
+		for _ in {1..20}; do
+			kill -0 "$pid" 2>/dev/null || break
+			sleep 0.1
+		done
+		kill -9 "$pid" 2>/dev/null || true
+		rm -f "$state_file"
+		dunstify -a "Screen Recorder" -u normal "Recording stopped. Output saved to: $saved_file" || true
+		mpv "$saved_file" >/dev/null 2>&1 &
+		exit 0
+	fi
+	rm -f "$state_file"
 fi
+
+geometry=$(xrandr --query | awk '/ connected primary/{for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+x[0-9]+\+/) { print $i; exit }}')
+if [[ -z "$geometry" ]]; then
+	geometry=$(xrandr --query | awk '/ connected/{for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+x[0-9]+\+/) { print $i; exit }}')
+fi
+video_size="${geometry%%+*}"
+
+audio_input=$(pactl get-default-sink 2>/dev/null || true)
+ffmpeg_args=(-video_size "$video_size" -framerate 20 -f x11grab -i "${DISPLAY:-:0}+0,0")
+if [[ -n "$audio_input" ]]; then
+	ffmpeg_args+=(-f pulse -i "${audio_input}.monitor")
+fi
+ffmpeg_args+=(-vf "scale=1280:-2" -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p)
+if [[ -n "$audio_input" ]]; then
+	ffmpeg_args+=(-c:a aac -b:a 128k)
+fi
+
+ffmpeg "${ffmpeg_args[@]}" "$output_file" >/dev/null 2>&1 &
+pid=$!
+sleep 1
+if ! kill -0 "$pid" 2>/dev/null; then
+	dunstify -a "Screen Recorder" -u critical "Recording failed to start." || true
+	exit 1
+fi
+
+printf '%s %s\n' "$pid" "$output_file" >"$state_file"
+dunstify -a "Screen Recorder" -u normal "Recording started on display ${DISPLAY}. Output file: $output_file" || true

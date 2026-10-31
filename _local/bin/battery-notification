@@ -1,21 +1,29 @@
 #!/bin/bash
 
+set -uo pipefail
+
 THRESHOLD=30
-CHECK_INTERVAL=60 # Check every 5 minutes
+CHECK_INTERVAL=300
+NOTIFIED=0
 
 while true; do
-	# Get the battery percentage
-	BATTERY_LEVEL=$(acpi -b | grep -P -o '[0-9]+(?=%)')
-
-	# Get the charging status
-	IS_CHARGING=$(acpi -b | grep -c 'Charging')
-
-	# Notify if battery level is below the threshold and not charging
-	if [ "$BATTERY_LEVEL" -lt "$THRESHOLD" ] && [ "$IS_CHARGING" -eq 0 ]; then
-		notify-send -u critical "Battery Low" "Battery level is ${BATTERY_LEVEL}%. Please plug in your charger." >/dev/null 2>&1 &
-		$HOME/.local/bin/bell 1 >/dev/null 2>&1 &
+	if ! command -v acpi >/dev/null 2>&1; then
+		sleep "$CHECK_INTERVAL"
+		continue
 	fi
 
-	# Wait for the specified interval before checking again
-	sleep $CHECK_INTERVAL
+	BATTERY_LEVEL=$(acpi -b 2>/dev/null | grep -oP '\d+(?=%)' | awk '{sum += $1; n++} END {if (n) printf "%d", sum / n}')
+	IS_CHARGING=$(acpi -b 2>/dev/null | grep -c 'Charging' || true)
+
+	if [[ -n "$BATTERY_LEVEL" ]] && (( BATTERY_LEVEL < THRESHOLD )) && (( IS_CHARGING == 0 )); then
+		if (( NOTIFIED == 0 )); then
+			notify-send -u critical "Battery Low" "Battery level is ${BATTERY_LEVEL}%. Please plug in your charger." >/dev/null 2>&1 || true
+			"$HOME/.local/bin/bell" 1 >/dev/null 2>&1 &
+			NOTIFIED=1
+		fi
+	else
+		NOTIFIED=0
+	fi
+
+	sleep "$CHECK_INTERVAL"
 done

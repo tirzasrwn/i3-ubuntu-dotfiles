@@ -1,33 +1,43 @@
 #!/bin/bash
 
-supported_extensions=("odt" "doc" "docx" "rtf" "ods" "xls" "xlsx" "csv" "odp" "ppt" "pptx")
+set -euo pipefail
 
-directories=$(grep -v '^#' $HOME/.directory_list)
-IFS=$'\n' read -rd '' -a directory_array <<<"$directories"
+list="$HOME/.directory_list"
+[[ -f "$list" ]] || {
+	echo "Missing $list" >&2
+	exit 1
+}
 
-find_command=("find")
+supported_extensions=(odt doc docx rtf ods xls xlsx csv odp ppt pptx)
 
-for dir in "${directory_array[@]}"; do
-	eval_dir=$(eval echo "$dir")
-	find_command+=("$eval_dir")
-done
+directories=()
+while IFS= read -r dir; do
+	if [[ -z "$dir" || "$dir" == \#* ]]; then
+		continue
+	fi
+	directories+=("${dir/#\~/$HOME}")
+done <"$list"
 
-find_command+=("-maxdepth" "3" "-type" "f" "(" "-iname" "*.pdf")
+if (( ${#directories[@]} == 0 )); then
+	echo "No directories configured in $list." >&2
+	exit 1
+fi
 
+find_command=(find "${directories[@]}" -maxdepth 3 -type f \( -iname '*.pdf')
 for ext in "${supported_extensions[@]}"; do
-	find_command+=("-o" "-iname" "*.$ext")
+	find_command+=(-o -iname "*.$ext")
 done
+find_command+=(\))
 
-find_command+=(")")
+selected_file=$("${find_command[@]}" 2>/dev/null | sort -u | rofi -i -dmenu -p 'file') || selected_file=""
 
-selected_file=$("${find_command[@]}" | sort -u | rofi -i -dmenu -p 'file')
-
-if [ -n "$selected_file" ]; then
+if [[ -n "$selected_file" ]]; then
 	file_extension="${selected_file##*.}"
+	file_extension="${file_extension,,}"
 
-	if [[ " ${supported_extensions[*]} " =~ " ${file_extension} " ]]; then
+	if [[ " ${supported_extensions[*]} " == *" $file_extension "* ]]; then
 		xdg-open "$selected_file" >/dev/null 2>&1 &
-	elif [ "$file_extension" == "pdf" ]; then
+	elif [[ "$file_extension" == "pdf" ]]; then
 		zathura "$selected_file" >/dev/null 2>&1 &
 	else
 		echo "Unsupported file format: $file_extension"
