@@ -164,8 +164,8 @@ screenkey, fzf, GTK 3/4, Neovim, and opencode.
   `background` over their RPC socket.
 - Running opencode, rofi, zathura, and other libadwaita apps pick up the new
   palette on next launch. Nautilus keeps its process alive after the window
-  closes and cannot reload GTK4 CSS, so the toggle quits it; reopening shows
-  the new palette.
+  closes and cannot reload GTK4 CSS, so the toggle quits it when no window
+  is open; with a window open it only warns, never closes anything.
 - Zen follows the light/dark scheme on its next launch: the toggle writes a
   `user.js` with `zen.view.window.scheme` to every profile.
 - Brave is not toggled. Chrome keeps only one theme installed, so switching

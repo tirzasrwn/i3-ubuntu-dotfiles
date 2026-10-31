@@ -177,14 +177,22 @@ if command -v gsettings >/dev/null 2>&1; then
 		gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
 	fi
 	# libadwaita apps (Nautilus, GNOME apps) ignore gtk-theme-name and read the
-	# user CSS instead. GTK4 does not watch that file, and Nautilus keeps its
-	# process alive after the window closes, so quit it and let the next launch
-	# read the new palette.
+	# user CSS instead. GTK4 never reloads that file and Nautilus keeps its
+	# process alive after the window closes, so quit it once no window is open;
+	# a window that is in use is left alone with a warning.
 	gtk4_css=$THEME_DATA/$theme_name/gtk-4.0/gtk.css
 	if [[ -n $theme_name && -f $gtk4_css && -d $CONFIG/gtk-4.0 ]]; then
 		cp "$gtk4_css" "$CONFIG/gtk-4.0/gtk.css" || true
 		if command -v nautilus >/dev/null 2>&1 && pgrep -x nautilus >/dev/null 2>&1; then
-			nautilus -q >/dev/null 2>&1 || true
+			nautilus_windows=0
+			if command -v xdotool >/dev/null 2>&1; then
+				nautilus_windows=$(xdotool search --onlyvisible --class 'org.gnome.Nautilus' 2>/dev/null | wc -l || true)
+			fi
+			if ((nautilus_windows > 0)); then
+				echo "warn: close Nautilus windows to pick up the $flavour palette" >&2
+			else
+				nautilus -q >/dev/null 2>&1 || true
+			fi
 		fi
 	fi
 fi
