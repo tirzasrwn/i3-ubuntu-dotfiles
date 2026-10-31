@@ -5,6 +5,10 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 ANTIGEN_FILE="$HOME/antigen.zsh"
 ANTIGEN_URL="https://raw.githubusercontent.com/zsh-users/antigen/c174a652fc3ed95e7b6915685b481178e48e30bc/bin/antigen.zsh"
 ANTIGEN_SHA256="0f4e32690e75ec2839dacfc2f63447a2a1fe80767f24a1210fa318ff2ae5035e"
