@@ -55,6 +55,7 @@ sudo ./brightness_controller_setup.sh
 ./brave_setup.sh
 ./boomer_setup.sh
 ./opencode_setup.sh
+./bun_setup.sh
 ```
 
 After the installers finish, log out, select i3 at the login manager, and log
@@ -75,6 +76,7 @@ back in.
 | `brave_setup.sh`             | Pipes Brave's official installer.                                       |
 | `boomer_setup.sh`            | Builds [tsoding/boomer](https://github.com/tsoding/boomer) into `~/.local/bin`. |
 | `opencode_setup.sh`          | Installs the pinned [opencode](https://opencode.ai) release into `~/.local/bin` after SHA256 verification. |
+| `bun_setup.sh`               | Installs the pinned [Bun](https://bun.sh) release into `~/.local/bin` after SHA256 verification. |
 
 ## Personalize for Your Machine
 
