@@ -16,7 +16,9 @@ fi
 if [[ -f "$STATE" ]]; then
 	xset s on +dpms
 	rm -f "$STATE"
+	notify-send -a Caffeine "Caffeine off" "Screen sleep and lock restored." || true
 else
 	xset s off -dpms
 	: >"$STATE"
+	notify-send -a Caffeine "Caffeine on" "Screen will stay awake." || true
 fi
