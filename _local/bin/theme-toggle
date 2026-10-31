@@ -4,6 +4,7 @@ set -euo pipefail
 CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}
 THEME_FILE=$CONFIG/theme
 THEMES_DIR=$CONFIG/themes
+THEME_DATA=${XDG_DATA_HOME:-$HOME/.local/share}/themes
 DEFAULT_FLAVOUR=macchiato
 
 usage() {
@@ -24,6 +25,7 @@ flavour=$(current_flavour)
 
 case "${1:-}" in
 --status)
+	[[ $# -eq 1 ]] || usage
 	printf '%s\n' "$flavour"
 	exit 0
 	;;
@@ -45,6 +47,8 @@ latte | macchiato) ;;
 	;;
 esac
 
+# Palette fragments are symlinked into place. A missing fragment is skipped so
+# a partial checkout still toggles the apps it does have.
 while IFS=: read -r fragment target; do
 	[[ -n "$fragment" ]] || continue
 	source_file=$THEMES_DIR/$flavour/$fragment
@@ -69,7 +73,7 @@ EOF
 
 # polybar does not expand ${colors.x} inside %{F...} tags, so the few inline
 # icon colours are swapped in the deployed module files instead.
-if [[ -d $CONFIG/polybar/modules ]]; then
+if [[ -f $THEMES_DIR/$flavour/polybar.ini && -d $CONFIG/polybar/modules ]]; then
 	for pair in "#a6da95 #40a02b" "#ed8796 #d20f39" "#91d7e3 #04a5e5" "#cad3f5 #4c4f69" "#c6a0f6 #8839ef"; do
 		read -r macchiato_hex latte_hex <<<"$pair"
 		for module in "$CONFIG"/polybar/modules/*.ini; do
@@ -87,14 +91,28 @@ fi
 i3_fragment=$THEMES_DIR/$flavour/i3.conf
 i3_config=$CONFIG/i3/config
 if [[ -f $i3_fragment && -f $i3_config ]]; then
-	tmp=$(mktemp)
-	awk -v src="$i3_fragment" '
-		/^# >>> theme palette/ { print; while ((getline line < src) > 0) print line; skip = 1; next }
-		/^# <<< theme palette/ { skip = 0 }
-		!skip { print }
-	' "$i3_config" >"$tmp" && mv "$tmp" "$i3_config"
+	if grep -q '^# >>> theme palette' "$i3_config"; then
+		tmp=$(mktemp)
+		if awk -v src="$i3_fragment" '
+			/^# >>> theme palette/ { print; while ((getline line < src) > 0) print line; skip = 1; next }
+			/^# <<< theme palette/ { skip = 0 }
+			!skip { print }
+		' "$i3_config" >"$tmp"; then
+			chmod --reference="$i3_config" "$tmp" 2>/dev/null || true
+			mv "$tmp" "$i3_config"
+		else
+			rm -f "$tmp"
+		fi
+	else
+		echo "warn: no theme palette markers in $i3_config" >&2
+	fi
 fi
 
+# Record the intent before touching anything that can fail, so a failed reload
+# cannot leave the state file pointing at the flavour that is not applied.
+printf '%s\n' "$flavour" >"$THEME_FILE"
+
+# From here on everything is best effort: the files are already consistent.
 if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
 	oc_theme=catppuccin-macchiato
 	oc_mode=dark
@@ -102,36 +120,42 @@ if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
 		oc_theme=catppuccin-latte
 		oc_mode=light
 	fi
-	if [[ -f $CONFIG/opencode/tui.json ]]; then
-		tmp=$(mktemp)
-		jq --arg t "$oc_theme" '.theme = $t' "$CONFIG/opencode/tui.json" >"$tmp" && mv "$tmp" "$CONFIG/opencode/tui.json"
+	tmp=$(mktemp)
+	if jq --arg t "$oc_theme" '.theme = $t' "$CONFIG/opencode/tui.json" >"$tmp"; then
+		mv "$tmp" "$CONFIG/opencode/tui.json"
+	else
+		rm -f "$tmp"
 	fi
 	if [[ -f $CONFIG/opencode/cli.json ]]; then
 		tmp=$(mktemp)
-		jq --arg n "$oc_theme" --arg m "$oc_mode" '.theme.name = $n | .theme.mode = $m' "$CONFIG/opencode/cli.json" >"$tmp" && mv "$tmp" "$CONFIG/opencode/cli.json"
+		if jq --arg n "$oc_theme" --arg m "$oc_mode" '.theme.name = $n | .theme.mode = $m' "$CONFIG/opencode/cli.json" >"$tmp"; then
+			mv "$tmp" "$CONFIG/opencode/cli.json"
+		else
+			rm -f "$tmp"
+		fi
 	fi
 fi
 
 if command -v gsettings >/dev/null 2>&1; then
 	theme_name=$(sed -n 's/^gtk-theme-name=//p' "$THEMES_DIR/$flavour/gtk.ini" 2>/dev/null || true)
-	if [[ -n $theme_name && ! -d ${XDG_DATA_HOME:-$HOME/.local/share}/themes/$theme_name ]]; then
+	if [[ -n $theme_name && ! -d $THEME_DATA/$theme_name && ! -d $HOME/.themes/$theme_name ]]; then
 		case $flavour in
 		latte) theme_name=Yaru ;;
 		*) theme_name=Yaru-dark ;;
 		esac
 	fi
 	if [[ -n $theme_name ]]; then
-		gsettings set org.gnome.desktop.interface gtk-theme "$theme_name"
+		gsettings set org.gnome.desktop.interface gtk-theme "$theme_name" || true
 	fi
 	if [[ $flavour == latte ]]; then
-		gsettings set org.gnome.desktop.interface color-scheme prefer-light
+		gsettings set org.gnome.desktop.interface color-scheme prefer-light || true
 	else
-		gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+		gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
 	fi
 fi
 
 if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
-	i3-msg reload >/dev/null
+	i3-msg reload >/dev/null || true
 fi
 
 if command -v polybar-msg >/dev/null 2>&1 && pgrep -x polybar >/dev/null 2>&1; then
@@ -148,19 +172,23 @@ fi
 
 if pgrep -x dunst >/dev/null 2>&1; then
 	pkill -x dunst || true
+	for _ in $(seq 1 40); do
+		pgrep -x dunst >/dev/null 2>&1 || break
+		sleep 0.05
+	done
 	setsid dunst >/dev/null 2>&1 &
 fi
 
 if pgrep -x screenkey >/dev/null 2>&1; then
 	pkill -x screenkey || true
-	setsid screenkey --no-systray >/dev/null 2>&1 &
+	setsid screenkey >/dev/null 2>&1 &
 fi
-
-printf '%s\n' "$flavour" >"$THEME_FILE"
 
 if command -v notify-send >/dev/null 2>&1; then
 	case "$flavour" in
-	latte) notify-send -a Theme "Theme" "Latte (light)" ;;
-	macchiato) notify-send -a Theme "Theme" "Macchiato (dark)" ;;
+	latte) notify-send -a Theme "Theme" "Latte (light)" || true ;;
+	macchiato) notify-send -a Theme "Theme" "Macchiato (dark)" || true ;;
 	esac
 fi
+
+exit 0
