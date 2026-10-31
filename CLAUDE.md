@@ -22,7 +22,6 @@ Never run as root. Do not add a second copy mechanism.
 - `app_setup.sh` — apt package list + deploy
 - `*_setup.sh` — independent tool installers (rust, go, node, neovim, fonts,
   multimedia, brave, boomer, opencode)
-- `.github/workflows/lint.yml` — syntax, shellcheck, `i3 -C`
 
 ## Code Style
 
