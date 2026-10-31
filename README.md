@@ -164,6 +164,11 @@ screenkey, fzf, GTK 3/4, Neovim, and opencode.
   `background` over their RPC socket.
 - Running opencode, rofi, zathura, Nautilus, and other libadwaita apps pick up
   the new palette on next launch.
+- Zen and Brave follow the light/dark scheme on their next launch: Zen via a
+  `user.js` written to every profile, Brave by editing `Preferences`, which
+  is only safe while Brave is closed (the toggle warns otherwise). Brave's
+  dark side keeps the installed Catppuccin Macchiato theme; its light side
+  is Brave's built-in light scheme.
 
 ## Reload and Validation
 
