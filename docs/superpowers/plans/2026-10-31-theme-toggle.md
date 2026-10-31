@@ -608,3 +608,59 @@ Confirm visually: light bar has dark text and no invisible segments; dark bar un
 git add keymaps.md README.md CLAUDE.md
 git commit -m "docs: document theme toggle and fragment layout"
 ```
+
+---
+
+### Task 8: opencode theme
+
+**Files:**
+- Modify: `_local/bin/theme-toggle` (opencode block)
+
+**Interfaces:**
+- Consumes: `flavour` and `$CONFIG` from the toggle.
+- Produces: `~/.config/opencode/tui.json` `theme` and `~/.config/opencode/cli.json` `theme.name`/`theme.mode` updated on every toggle.
+
+- [ ] **Step 1: Write the failing check**
+
+```bash
+# /tmp/opencode/check-task8.sh
+set -euo pipefail
+~/.local/bin/theme-toggle --set latte
+[[ "$(jq -r .theme ~/.config/opencode/tui.json)" == catppuccin-latte ]] || { echo "FAIL: tui"; exit 1; }
+[[ "$(jq -r .theme.name ~/.config/opencode/cli.json)" == catppuccin-latte ]] || { echo "FAIL: cli name"; exit 1; }
+[[ "$(jq -r .theme.mode ~/.config/opencode/cli.json)" == light ]] || { echo "FAIL: cli mode"; exit 1; }
+~/.local/bin/theme-toggle --set macchiato
+[[ "$(jq -r .theme ~/.config/opencode/tui.json)" == catppuccin-macchiato ]] || { echo "FAIL: tui dark"; exit 1; }
+[[ "$(jq -r .theme.mode ~/.config/opencode/cli.json)" == dark ]] || { echo "FAIL: cli mode dark"; exit 1; }
+jq -e . ~/.config/opencode/opencode.json >/dev/null || { echo "FAIL: provider config damaged"; exit 1; }
+echo PASS
+```
+
+- [ ] **Step 2: Run it to verify it fails**
+
+Run: `bash /tmp/opencode/check-task8.sh`
+Expected: `FAIL: tui` (still `catppuccin`).
+
+- [ ] **Step 3: Update the two opencode JSON files in `theme-toggle`**
+
+After the symlink loop, when `command -v jq` and `$CONFIG/opencode/tui.json` exists:
+
+```bash
+oc_theme=catppuccin-macchiato
+oc_mode=dark
+[[ $flavour == latte ]] && { oc_theme=catppuccin-latte; oc_mode=light; }
+```
+
+Rewrite `tui.json` with `jq --arg t "$oc_theme" '.theme = $t'` and `cli.json` with `jq --arg n "$oc_theme" --arg m "$oc_mode" '.theme.name = $n | .theme.mode = $m'`, each through `mktemp` + `mv` so a failed write cannot truncate the user's config. Never touch `opencode.json` (it holds the provider API key).
+
+- [ ] **Step 4: Run the check**
+
+Run: `bash /tmp/opencode/check-task8.sh`
+Expected: `PASS`.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add _local/bin/theme-toggle
+git commit -m "feat: toggle opencode theme with the desktop"
+```
