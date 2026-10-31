@@ -156,6 +156,7 @@ Prefix: `Ctrl+b` (press twice to send literal `Ctrl+b`)
 | `Ctrl+b g`  | lazygit popup (current pane directory)          |
 | `Ctrl+b a`  | opencode popup (current pane directory)         |
 | `Ctrl+b e`  | lazydocker popup (current pane directory)       |
+| `Ctrl+b b`  | top popup (`top -d 1`, preset m/t/1 view)        |
 
 ---
 
