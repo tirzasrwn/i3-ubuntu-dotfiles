@@ -55,7 +55,6 @@ while IFS=: read -r fragment target; do
 	mkdir -p "$(dirname "$target")"
 	ln -sfn "$source_file" "$target"
 done <<EOF
-i3.conf:$CONFIG/i3/colors.conf
 polybar.ini:$CONFIG/polybar/colors.ini
 rofi.rasi:$CONFIG/rofi/colors.rasi
 tmux.conf:$CONFIG/tmux/colors.conf
@@ -67,6 +66,19 @@ zsh-colors.zsh:$CONFIG/zsh/colors.zsh
 gtk.ini:$CONFIG/gtk-3.0/settings.ini
 gtk.ini:$CONFIG/gtk-4.0/settings.ini
 EOF
+
+# i3 does not expand variables defined in an included file, so the palette
+# block is rewritten in place between its markers.
+i3_fragment=$THEMES_DIR/$flavour/i3.conf
+i3_config=$CONFIG/i3/config
+if [[ -f $i3_fragment && -f $i3_config ]]; then
+	tmp=$(mktemp)
+	awk -v src="$i3_fragment" '
+		/^# >>> theme palette/ { print; while ((getline line < src) > 0) print line; skip = 1; next }
+		/^# <<< theme palette/ { skip = 0 }
+		!skip { print }
+	' "$i3_config" >"$tmp" && mv "$tmp" "$i3_config"
+fi
 
 if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
 	oc_theme=catppuccin-macchiato
