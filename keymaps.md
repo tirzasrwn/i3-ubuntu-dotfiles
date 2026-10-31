@@ -104,7 +104,6 @@ Modifiers:
 | Title                    | Rule       |
 | ------------------------ | ---------- |
 | `Picture-in-Picture`     | Sticky     |
-| ` ` (single space)       | Sticky     |
 
 ---
 
@@ -117,8 +116,8 @@ Prefix: `Ctrl+b` (press twice to send literal `Ctrl+b`)
 | Key         | Action                              |
 | ----------- | ----------------------------------- |
 | `Ctrl+b r`  | Reload tmux config                  |
-| `Ctrl+b x`  | Kill current window                 |
-| `Ctrl+b X`  | Kill current session                |
+| `Ctrl+b x`  | Kill current window (with confirmation) |
+| `Ctrl+b X`  | Kill current session (with confirmation) |
 | `Ctrl+b ^`  | Jump to last window                 |
 
 ### Pane navigation (vim-like)

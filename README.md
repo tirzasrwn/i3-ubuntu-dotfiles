@@ -63,10 +63,10 @@ back in.
 
 | Script                       | Purpose                                                                 |
 |------------------------------|-------------------------------------------------------------------------|
-| `app_setup.sh`               | apt packages; copies `_config/*` to `~/.config`, `_local/*` to `~/.local`, and `.profile`, `.zshrc`, `.p10k.zsh`, `.bookmark`, `.directory_list` to `$HOME`. Refuses to run as root. |
+| `app_setup.sh`               | apt packages; copies `_config/*` to `~/.config`, `_local/*` to `~/.local`, and `.profile`, `.zshrc`, `.p10k.zsh`, `.bookmark`, `.directory_list` to `$HOME`. Backs up replaced files to `~/.dotfiles-backup-<timestamp>`. Refuses to run as root. |
 | `brightness_controller_setup.sh` | Writes `/etc/udev/rules.d/backlight.rules` and adds the user to the `video` group. Run with `sudo`. |
 | `font_setup.sh`              | Downloads FiraCode Nerd Font v3.4.0 to `~/.fonts` and runs `fc-cache`.  |
-| `rust_setup.sh`              | rustup; installs `alacritty`, `tree-sitter-cli`, `bluetui` via cargo.    |
+| `rust_setup.sh`              | rustup; installs `alacritty` via apt and `tree-sitter-cli`, `bluetui` via cargo. |
 | `go_setup.sh`                | Go 1.25.0 to `/usr/local/go`; installs `lazydocker`.                     |
 | `node_setup.sh`              | nvm v0.40.3 then Node 22.                                                |
 | `neovim_setup.sh`            | Builds Neovim (stable) from source and installs with `sudo make install`.|
@@ -89,14 +89,13 @@ keybindings will not work until these are fixed.
      this at your own notes vault.
 
 2. Hardware-specific identifiers
-   - `_config/i3/config` line 260: touchpad id `ELAN0708:00 04F3:30A0 Touchpad`.
-     Find your id with `xinput list` and replace it.
    - `_config/polybar/system.ini`: `sys_adapter`, `sys_battery`,
      `sys_graphics_card`, `sys_wlan_interface`, `sys_eth_interface`. The file
      header lists the commands to discover each value.
    - `_local/bin/toggle-display-mode` lines 5-6: `PRIMARY="eDP"` and
      `EXTERNAL="DisplayPort-1"`. Replace with output names from `xrandr --query`.
-   - `_local/bin/fix-touchpad` line 6: touchpad name `SynPS/2 Synaptics TouchPad`.
+   - `_local/bin/fix-touchpad` auto-detects the first device whose name contains
+     `touchpad`. Adjust the `grep` if that picks the wrong device.
 
 3. Pickers and shell
    - Replace the sample `~/.bookmark` and `~/.directory_list` with your own
@@ -155,7 +154,7 @@ Health-check the binaries the configs rely on:
 
 ```bash
 for cmd in dex xdotool rofi flameshot feh polybar playerctl brightnessctl \
-           xclip uuid nautilus dungeon acpi; do
+           xclip uuid nautilus dunst acpi xinput xrandr eza; do
   command -v "$cmd" || echo "MISSING: $cmd"
 done
 ```
@@ -188,15 +187,16 @@ done
 
 ## Caveats
 
-- The `bell` helper references `~/bell.mp3`, which is not provided.
+- The `bell` helper uses `~/bell.mp3` if present, otherwise the system bell
+  sound.
 - `i3/config` uses `xss-lock --transfer-sleep-lock -- i3lock ...`, which only
   works in a logind-aware session.
 - `~/.local/bin` is added to `PATH` by `.profile`, so a fresh login is needed
   before invoking helpers like `boomer` or `tmux-sessionizer` from a fresh
   shell.
-- `app_setup.sh` does not install every package the configs reference. You may
-  need to install `uuid-runtime`, `dex`, `xclip`, `acpi`, and `nautilus`
-  manually if they are not already present.
+- `app_setup.sh` installs the runtime packages the configs reference. If a
+  helper still reports a missing command, install it and update the package
+  list.
 
 ## Credits
 
@@ -204,3 +204,7 @@ done
 - FiraCode Nerd Font: https://github.com/ryanoasis/nerd-fonts
 - i3, polybar, picom, rofi, dunst, alacritty, tmux, powerlevel10k, zsh-vi-mode
   and the other upstream projects referenced in the configs.
+
+## License
+
+[MIT](LICENSE) © 2026 tirzasrwn
