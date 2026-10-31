@@ -22,3 +22,4 @@ export PATH="$PATH:/usr/local/go/bin"
 go version
 
 go install github.com/jesseduffield/lazydocker@latest
+go install github.com/jesseduffield/lazygit@latest

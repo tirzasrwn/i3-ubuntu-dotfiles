@@ -69,7 +69,7 @@ back in.
 | `brightness_controller_setup.sh` | Writes `/etc/udev/rules.d/backlight.rules` and adds the user to the `video` group. Run with `sudo`. |
 | `font_setup.sh`              | Downloads FiraCode Nerd Font v3.5.1 to `~/.fonts` and runs `fc-cache`.  |
 | `rust_setup.sh`              | rustup; installs `alacritty` via apt and `tree-sitter-cli`, `bluetui` via cargo. |
-| `go_setup.sh`                | Go 1.27.3 to `/usr/local/go`; installs `lazydocker`.                     |
+| `go_setup.sh`                | Go 1.27.3 to `/usr/local/go`; installs `lazydocker` and `lazygit`.                     |
 | `node_setup.sh`              | nvm v0.40.8 then Node 26.13.0.                                                |
 | `neovim_setup.sh`            | Builds Neovim (stable) from source and installs with `sudo make install`.|
 | `multimedia_setup.sh`        | gimp, inkscape, kdenlive, mpv, vlc.                                      |
