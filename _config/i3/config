@@ -10,32 +10,7 @@
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
 # Set color.
-set $rosewater #f4dbd6
-set $flamingo  #f0c6c6
-set $pink      #f5bde6
-set $mauve     #c6a0f6
-set $red       #ed8796
-set $maroon    #ee99a0
-set $peach     #f5a97f
-set $yellow    #eed49f
-set $green     #a6da95
-set $teal      #8bd5ca
-set $sky       #91d7e3
-set $sapphire  #7dc4e4
-set $blue      #8aadf4
-set $lavender  #b7bdf8
-set $text      #cad3f5
-set $subtext1  #b8c0e0
-set $subtext0  #a5adcb
-set $overlay2  #939ab7
-set $overlay1  #8087a2
-set $overlay0  #6e738d
-set $surface2  #5b6078
-set $surface1  #494d64
-set $surface0  #363a4f
-set $base      #24273a
-set $mantle    #1e2030
-set $crust     #181926
+include ~/.config/i3/colors.conf
 
 # $mod = Alt, $cmd = Cmd
 set $mod Mod1
@@ -298,6 +273,7 @@ bindsym $cmd+u exec uuid | xclip -selection clipboard >/dev/null 2>&1 &
 
 # Zoom without leaving the mouse with boomer
 bindsym $cmd+shift+q exec $HOME/.local/bin/boomer >/dev/null 2>&1 &
+bindsym $cmd+Shift+t exec $HOME/.local/bin/theme-toggle
 
 # Enable Sticky floating windows for picture in picture browser
 for_window [title="Picture-in-Picture"] sticky enable

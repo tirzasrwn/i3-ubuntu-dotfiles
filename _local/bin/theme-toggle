@@ -1,0 +1,72 @@
+#!/bin/bash
+set -euo pipefail
+
+CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}
+THEME_FILE=$CONFIG/theme
+THEMES_DIR=$CONFIG/themes
+DEFAULT_FLAVOUR=macchiato
+
+usage() {
+	echo "usage: ${0##*/} [--set latte|macchiato] [--status]" >&2
+	exit 2
+}
+
+current_flavour() {
+	local flavour
+	flavour=$(head -n1 "$THEME_FILE" 2>/dev/null || true)
+	case "$flavour" in
+	latte | macchiato) printf '%s\n' "$flavour" ;;
+	*) printf '%s\n' "$DEFAULT_FLAVOUR" ;;
+	esac
+}
+
+flavour=$(current_flavour)
+
+case "${1:-}" in
+--status)
+	printf '%s\n' "$flavour"
+	exit 0
+	;;
+--set)
+	[[ $# -eq 2 ]] || usage
+	flavour=$2
+	;;
+"")
+	[[ $flavour == latte ]] && flavour=macchiato || flavour=latte
+	;;
+*) usage ;;
+esac
+
+case "$flavour" in
+latte | macchiato) ;;
+*)
+	echo "unknown flavour: $flavour" >&2
+	exit 1
+	;;
+esac
+
+while IFS=: read -r fragment target; do
+	[[ -n "$fragment" ]] || continue
+	source_file=$THEMES_DIR/$flavour/$fragment
+	if [[ ! -f "$source_file" ]]; then
+		echo "skip: no fragment $source_file" >&2
+		continue
+	fi
+	mkdir -p "$(dirname "$target")"
+	ln -sfn "$source_file" "$target"
+done <<EOF
+i3.conf:$CONFIG/i3/colors.conf
+EOF
+
+if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
+	i3-msg reload >/dev/null
+fi
+
+printf '%s\n' "$flavour" >"$THEME_FILE"
+
+if command -v notify-send >/dev/null 2>&1; then
+	case "$flavour" in
+	latte) notify-send -a Theme "Theme" "Latte (light)" ;;
+	macchiato) notify-send -a Theme "Theme" "Macchiato (dark)" ;;
+	esac
+fi

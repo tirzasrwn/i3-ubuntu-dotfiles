@@ -17,6 +17,7 @@ Modifiers:
 | `Super+Shift+s` | Screenshot (flameshot gui)          |
 | `Super+Shift+q` | Boomer (zoom without leaving mouse) |
 | `Super+u`       | Generate UUID, copy to clipboard    |
+| `Super+Shift+t` | Toggle Latte (light) / Macchiato (dark) |
 
 ### Focus
 
