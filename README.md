@@ -56,6 +56,7 @@ sudo ./brightness_controller_setup.sh
 ./boomer_setup.sh
 ./bun_setup.sh
 ./opencode_setup.sh
+./gtk_theme_setup.sh
 ```
 
 After the installers finish, log out, select i3 at the login manager, and log
@@ -66,6 +67,7 @@ back in.
 | Script                       | Purpose                                                                 |
 |------------------------------|-------------------------------------------------------------------------|
 | `app_setup.sh`               | apt packages; copies `_config/*` to `~/.config`, `_local/*` to `~/.local`, and `.profile`, `.zshrc`, `.p10k.zsh`, `.bookmark`, `.directory_list` to `$HOME`. Backs up replaced files to `~/.dotfiles-backup-<timestamp>`. Refuses to run as root. |
+| `gtk_theme_setup.sh`        | Installs Catppuccin GTK themes (Latte/Macchiato, mauve) from pinned v1.0.3 release into `~/.local/share/themes`. |
 | `brightness_controller_setup.sh` | Writes `/etc/udev/rules.d/backlight.rules` and adds the user to the `video` group. Run with `sudo`. |
 | `font_setup.sh`              | Downloads FiraCode Nerd Font v3.5.1 to `~/.fonts` and runs `fc-cache`.  |
 | `rust_setup.sh`              | rustup; installs `alacritty` via apt and `tree-sitter-cli`, `bluetui` via cargo. |

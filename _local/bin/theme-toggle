@@ -64,7 +64,27 @@ zathura:$CONFIG/zathura/colors
 dunstrc:$CONFIG/dunst/dunstrc
 screenkey.json:$CONFIG/screenkey.json
 zsh-colors.zsh:$CONFIG/zsh/colors.zsh
+gtk.ini:$CONFIG/gtk-3.0/settings.ini
+gtk.ini:$CONFIG/gtk-4.0/settings.ini
 EOF
+
+if command -v gsettings >/dev/null 2>&1; then
+	theme_name=$(sed -n 's/^gtk-theme-name=//p' "$THEMES_DIR/$flavour/gtk.ini" 2>/dev/null || true)
+	if [[ -n $theme_name && ! -d ${XDG_DATA_HOME:-$HOME/.local/share}/themes/$theme_name ]]; then
+		case $flavour in
+		latte) theme_name=Yaru ;;
+		*) theme_name=Yaru-dark ;;
+		esac
+	fi
+	if [[ -n $theme_name ]]; then
+		gsettings set org.gnome.desktop.interface gtk-theme "$theme_name"
+	fi
+	if [[ $flavour == latte ]]; then
+		gsettings set org.gnome.desktop.interface color-scheme prefer-light
+	else
+		gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+	fi
+fi
 
 if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
 	i3-msg reload >/dev/null

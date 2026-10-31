@@ -82,6 +82,7 @@ cp -a ./_config/. "$HOME/.config/"
 cp -a ./_local/. "$HOME/.local/"
 cp -a .profile .bookmark .directory_list .p10k.zsh .zshrc "$HOME/"
 
+bash ./gtk_theme_setup.sh
 install -m 755 ./_local/bin/theme-toggle "$HOME/.local/bin/theme-toggle"
 "$HOME/.local/bin/theme-toggle" --set "$(cat "$HOME/.config/theme" 2>/dev/null || echo macchiato)"
 
