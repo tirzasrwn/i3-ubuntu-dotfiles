@@ -162,13 +162,15 @@ screenkey, fzf, GTK 3/4, Neovim, and opencode.
 - Wallpaper and the lock screen colour do not change with the theme.
 - Running Neovim instances switch immediately: the toggle pushes the new
   `background` over their RPC socket.
-- Running opencode, rofi, zathura, Nautilus, and other libadwaita apps pick up
-  the new palette on next launch.
-- Zen and Brave follow the light/dark scheme on their next launch: Zen via a
-  `user.js` written to every profile, Brave by editing `Preferences`, which
-  is only safe while Brave is closed (the toggle warns otherwise). Brave's
-  dark side keeps the installed Catppuccin Macchiato theme; its light side
-  is Brave's built-in light scheme.
+- Running opencode, rofi, zathura, and other libadwaita apps pick up the new
+  palette on next launch. Nautilus keeps its process alive after the window
+  closes and cannot reload GTK4 CSS, so the toggle quits it; reopening shows
+  the new palette.
+- Zen follows the light/dark scheme on its next launch: the toggle writes a
+  `user.js` with `zen.view.window.scheme` to every profile.
+- Brave is not toggled. Chrome keeps only one theme installed, so switching
+  between Catppuccin flavours would uninstall the other one. Set Brave's
+  appearance to system colours if you want it to follow the desktop.
 
 ## Reload and Validation
 

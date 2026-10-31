@@ -148,9 +148,8 @@ if command -v jq >/dev/null 2>&1 && [[ -f $CONFIG/opencode/tui.json ]]; then
 	fi
 fi
 
-# Browsers pick their scheme at startup. Zen reads user.js on every launch, so
-# this works while it is open; Brave rewrites Preferences on exit, so only
-# touch it while Brave is closed.
+# Zen picks its scheme at startup and reads user.js on every launch, so this
+# works even while it is open.
 browser_scheme=2
 [[ $flavour == latte ]] && browser_scheme=1
 for zen_prefs in "$HOME"/.zen/*/prefs.js; do
@@ -160,28 +159,6 @@ user_pref("zen.view.window.scheme", $browser_scheme);
 user_pref("layout.css.prefers-color-scheme.content-override", $browser_scheme);
 EOF
 done
-
-brave_dir=$CONFIG/BraveSoftware/Brave-Browser/Default
-if [[ -f $brave_dir/Preferences ]]; then
-	if pgrep -x brave >/dev/null 2>&1; then
-		echo "warn: close Brave to apply the $flavour theme" >&2
-	else
-		# Dark keeps the installed Catppuccin Macchiato theme; light falls back
-		# to Brave's built-in light scheme.
-		theme_manifest=$(grep -l 'Catppuccin Chrome Theme - Macchiato' "$brave_dir"/Extensions/*/*/manifest.json 2>/dev/null | head -1)
-		tmp=$(mktemp)
-		if [[ $flavour == macchiato && -n $theme_manifest ]]; then
-			theme_id=$(basename "$(dirname "$(dirname "$theme_manifest")")")
-			jq --arg id "$theme_id" --arg pack "$(dirname "$theme_manifest")" \
-				'.extensions.theme = {id: $id, pack: $pack} | .browser.theme.color_scheme2 = 2 | .browser.theme.follows_system_colors = false' \
-				"$brave_dir/Preferences" >"$tmp" && mv "$tmp" "$brave_dir/Preferences" || rm -f "$tmp"
-		else
-			jq --argjson scheme "$browser_scheme" \
-				'del(.extensions.theme) | .browser.theme.color_scheme2 = $scheme | .browser.theme.follows_system_colors = false' \
-				"$brave_dir/Preferences" >"$tmp" && mv "$tmp" "$brave_dir/Preferences" || rm -f "$tmp"
-		fi
-	fi
-fi
 
 if command -v gsettings >/dev/null 2>&1; then
 	theme_name=$(sed -n 's/^gtk-theme-name=//p' "$THEMES_DIR/$flavour/gtk.ini" 2>/dev/null || true)
@@ -200,10 +177,15 @@ if command -v gsettings >/dev/null 2>&1; then
 		gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
 	fi
 	# libadwaita apps (Nautilus, GNOME apps) ignore gtk-theme-name and read the
-	# user CSS instead; overwrite it in place so GTK4 reloads it live.
+	# user CSS instead. GTK4 does not watch that file, and Nautilus keeps its
+	# process alive after the window closes, so quit it and let the next launch
+	# read the new palette.
 	gtk4_css=$THEME_DATA/$theme_name/gtk-4.0/gtk.css
 	if [[ -n $theme_name && -f $gtk4_css && -d $CONFIG/gtk-4.0 ]]; then
 		cp "$gtk4_css" "$CONFIG/gtk-4.0/gtk.css" || true
+		if command -v nautilus >/dev/null 2>&1 && pgrep -x nautilus >/dev/null 2>&1; then
+			nautilus -q >/dev/null 2>&1 || true
+		fi
 	fi
 fi
 
