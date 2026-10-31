@@ -5,6 +5,13 @@ VERSION=v1.0.3
 BASE_URL=https://github.com/catppuccin/gtk/releases/download/$VERSION
 DEST=${XDG_DATA_HOME:-$HOME/.local/share}/themes
 
+for tool in curl unzip sha256sum; do
+	command -v "$tool" >/dev/null 2>&1 || {
+		echo "missing: $tool" >&2
+		exit 1
+	}
+done
+
 declare -A SHA256=(
 	[catppuccin-latte-mauve-standard+default.zip]=b19da9e3048dc9357a3e55f2592a4e006aaf5654ff228f846d7b21adf7c3273e
 	[catppuccin-macchiato-mauve-standard+default.zip]=b8186e47a9d09266f54b38c6e58dd2837fe53d9786532ce206c1fc3c7b658573
