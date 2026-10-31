@@ -6,10 +6,20 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 ANTIGEN_FILE="$HOME/antigen.zsh"
+ANTIGEN_URL="https://raw.githubusercontent.com/zsh-users/antigen/c174a652fc3ed95e7b6915685b481178e48e30bc/bin/antigen.zsh"
+ANTIGEN_SHA256="0f4e32690e75ec2839dacfc2f63447a2a1fe80767f24a1210fa318ff2ae5035e"
 
 # Download antigen.zsh if it does not exist
-if [ ! -f "$ANTIGEN_FILE" ]; then
-    curl -L git.io/antigen > "$ANTIGEN_FILE"
+if [ ! -s "$ANTIGEN_FILE" ]; then
+    if ! curl -fsSL "$ANTIGEN_URL" -o "$ANTIGEN_FILE"; then
+        echo "Failed to download antigen; check your network." >&2
+        return 1
+    fi
+    if ! echo "$ANTIGEN_SHA256  $ANTIGEN_FILE" | sha256sum -c --quiet -; then
+        echo "antigen.zsh checksum mismatch; refusing to source it." >&2
+        rm -f "$ANTIGEN_FILE"
+        return 1
+    fi
 fi
 
 # Source antigen.zsh
@@ -88,4 +98,6 @@ export FZF_DEFAULT_OPTS=" \
 --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-fortune | cowsay -f tux
+if command -v fortune >/dev/null 2>&1 && command -v cowsay >/dev/null 2>&1; then
+  fortune | cowsay -f tux
+fi

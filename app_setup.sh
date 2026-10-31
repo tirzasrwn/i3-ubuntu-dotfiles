@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 if [[ $EUID -eq 0 ]]; then
 	echo "This script must NOT be run as root." 1>&2
 	exit 1
@@ -7,44 +9,80 @@ fi
 
 sudo apt update
 sudo apt install -y \
-	arandr \
-	brightnessctl \
+	acpi \
+	alsa-utils \
 	blueman \
+	brightnessctl \
 	cowsay \
 	curl \
+	dex \
 	dunst \
 	eza \
 	feh \
 	ffmpeg \
-	fortune \
 	flameshot \
+	fortune \
 	fzf \
 	git \
 	gromit-mpx \
-	i3lock \
 	i3-wm \
+	i3lock \
 	lazygit \
 	libdbus-1-dev \
 	libnotify-bin \
 	mate-polkit \
 	mpv \
-	netcat-openbsd \
-	nmap \
-	openjdk-21-jdk \
+	nautilus \
+	network-manager-gnome \
 	pavucontrol \
 	picom \
 	pkg-config \
+	playerctl \
 	polybar \
-	rofi \
+	pulseaudio-utils \
 	ripgrep \
+	rofi \
 	screenkey \
 	tmux \
+	unzip \
+	uuid-runtime \
 	wget \
+	x11-xserver-utils \
+	xclip \
+	xdg-utils \
 	xdotool \
+	xinput \
+	xss-lock \
 	zathura \
-	zip \
 	zsh
 
-cp -frv ./_config/* ~/.config
-cp -frv ./_local/* ~/.local
-cp -frv .profile .bookmark .directory_list .p10k.zsh .zshrc ~/
+backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+
+backup_path() {
+	local target="$1"
+	if [[ -e "$target" ]]; then
+		local rel="${target#"$HOME"/}"
+		mkdir -p "$backup_dir/$(dirname "$rel")"
+		cp -a "$target" "$backup_dir/$rel"
+	fi
+}
+
+mkdir -p "$HOME/.config" "$HOME/.local"
+
+for item in ./_config/*; do
+	backup_path "$HOME/.config/$(basename "$item")"
+done
+for item in ./_local/*; do
+	backup_path "$HOME/.local/$(basename "$item")"
+done
+for item in .profile .bookmark .directory_list .p10k.zsh .zshrc; do
+	backup_path "$HOME/$item"
+done
+
+cp -a ./_config/. "$HOME/.config/"
+cp -a ./_local/. "$HOME/.local/"
+cp -a .profile .bookmark .directory_list .p10k.zsh .zshrc "$HOME/"
+
+if [[ -d "$backup_dir" ]]; then
+	echo "Backed up previous files to $backup_dir"
+fi
