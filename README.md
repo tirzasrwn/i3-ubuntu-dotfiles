@@ -156,11 +156,14 @@ screenkey, fzf, GTK 3/4, Neovim, and opencode.
 - `dunst` and `screenkey` have no include mechanism, so their whole file is the
   fragment. Edit them in `_config/themes/`, never in `~/.config`.
 - GTK themes come from `gtk_theme_setup.sh` (Catppuccin GTK v1.0.3, mauve
-  accent) and fall back to `Yaru`/`Yaru-dark` when missing.
+  accent) and fall back to `Yaru`/`Yaru-dark` when missing. GTK3 apps
+  follow `gtk-theme-name`; libadwaita apps (Nautilus, GNOME apps) ignore it,
+  so the toggle also writes `~/.config/gtk-4.0/gtk.css`.
 - Wallpaper and the lock screen colour do not change with the theme.
 - Running Neovim instances switch immediately: the toggle pushes the new
   `background` over their RPC socket.
-- Running opencode, rofi, and zathura pick up the new palette on next launch.
+- Running opencode, rofi, zathura, Nautilus, and other libadwaita apps pick up
+  the new palette on next launch.
 
 ## Reload and Validation
 

@@ -164,6 +164,12 @@ if command -v gsettings >/dev/null 2>&1; then
 	else
 		gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
 	fi
+	# libadwaita apps (Nautilus, GNOME apps) ignore gtk-theme-name and read the
+	# user CSS instead; overwrite it in place so GTK4 reloads it live.
+	gtk4_css=$THEME_DATA/$theme_name/gtk-4.0/gtk.css
+	if [[ -n $theme_name && -f $gtk4_css && -d $CONFIG/gtk-4.0 ]]; then
+		cp "$gtk4_css" "$CONFIG/gtk-4.0/gtk.css" || true
+	fi
 fi
 
 if command -v i3-msg >/dev/null 2>&1 && i3-msg -t get_version >/dev/null 2>&1; then
