@@ -7,8 +7,8 @@ if [[ $EUID -eq 0 ]]; then
 	exit 1
 fi
 
-URL="https://go.dev/dl/go1.25.0.linux-amd64.tar.gz"
-SHA256="2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613"
+URL="https://go.dev/dl/go1.27.3.linux-amd64.tar.gz"
+SHA256="65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40"
 
 tmp_file=$(mktemp)
 trap 'rm -f "$tmp_file"' EXIT

@@ -54,6 +54,7 @@ sudo ./brightness_controller_setup.sh
 ./multimedia_setup.sh
 ./brave_setup.sh
 ./boomer_setup.sh
+./opencode_setup.sh
 ```
 
 After the installers finish, log out, select i3 at the login manager, and log
@@ -65,14 +66,15 @@ back in.
 |------------------------------|-------------------------------------------------------------------------|
 | `app_setup.sh`               | apt packages; copies `_config/*` to `~/.config`, `_local/*` to `~/.local`, and `.profile`, `.zshrc`, `.p10k.zsh`, `.bookmark`, `.directory_list` to `$HOME`. Backs up replaced files to `~/.dotfiles-backup-<timestamp>`. Refuses to run as root. |
 | `brightness_controller_setup.sh` | Writes `/etc/udev/rules.d/backlight.rules` and adds the user to the `video` group. Run with `sudo`. |
-| `font_setup.sh`              | Downloads FiraCode Nerd Font v3.4.0 to `~/.fonts` and runs `fc-cache`.  |
+| `font_setup.sh`              | Downloads FiraCode Nerd Font v3.5.1 to `~/.fonts` and runs `fc-cache`.  |
 | `rust_setup.sh`              | rustup; installs `alacritty` via apt and `tree-sitter-cli`, `bluetui` via cargo. |
-| `go_setup.sh`                | Go 1.25.0 to `/usr/local/go`; installs `lazydocker`.                     |
-| `node_setup.sh`              | nvm v0.40.3 then Node 22.                                                |
+| `go_setup.sh`                | Go 1.27.3 to `/usr/local/go`; installs `lazydocker`.                     |
+| `node_setup.sh`              | nvm v0.40.8 then Node 26.13.0.                                                |
 | `neovim_setup.sh`            | Builds Neovim (stable) from source and installs with `sudo make install`.|
 | `multimedia_setup.sh`        | gimp, inkscape, kdenlive, mpv, vlc.                                      |
 | `brave_setup.sh`             | Pipes Brave's official installer.                                       |
 | `boomer_setup.sh`            | Builds [tsoding/boomer](https://github.com/tsoding/boomer) into `~/.local/bin`. |
+| `opencode_setup.sh`          | Installs the pinned [opencode](https://opencode.ai) release into `~/.local/bin` after SHA256 verification. |
 
 ## Personalize for Your Machine
 
